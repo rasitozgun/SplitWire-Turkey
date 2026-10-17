@@ -37,17 +37,27 @@ public class ProcessRunner
     {
         var (exe, args) = elevated ? ResolveElevation(program, arguments) : (program, arguments);
 
-        // Chmod +x for files inside res/ that may lose the exec bit after extraction.
+        // .NET's Arguments string is passed through verbatim on Unix; single
+        // quotes are NOT honoured by the argv splitter, which broke paths like
+        // 'tar -xzf '<file>''. Tokenize explicitly with shell-like quoting so
+        // both direct programs and /bin/sh -c composites get correct arg lists.
         var psi = new ProcessStartInfo
         {
             FileName = exe,
-            Arguments = args,
             WorkingDirectory = string.IsNullOrEmpty(workingDirectory) ? "." : workingDirectory,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true,
         };
+        foreach (var token in SplitArguments(args))
+        {
+            psi.ArgumentList.Add(token);
+        }
+        if (psi.ArgumentList.Count == 0 && !string.IsNullOrWhiteSpace(args))
+        {
+            psi.Arguments = args;
+        }
 
         var stdout = new System.Text.StringBuilder();
         var stderr = new System.Text.StringBuilder();
@@ -142,6 +152,64 @@ public class ProcessRunner
 
     [System.Runtime.InteropServices.DllImport("libc")]
     private static extern uint geteuid();
+
+    /// <summary>
+    /// Splits a bash-style argument string into tokens, honouring single and
+    /// double quotes (and \" escapes inside double quotes). Embedded quoted
+    /// runs stay inside one token, which is what /bin/sh -c composites need.
+    /// </summary>
+    private static List<string> SplitArguments(string args)
+    {
+        var tokens = new List<string>();
+        var current = new System.Text.StringBuilder();
+        char quote = default;
+        void Flush()
+        {
+            if (current.Length > 0)
+            {
+                tokens.Add(current.ToString());
+                current.Clear();
+            }
+        }
+        for (var i = 0; i < args.Length; i++)
+        {
+            var c = args[i];
+            if (quote == '\'')
+            {
+                if (c == '\'') quote = default;
+                else current.Append(c);
+            }
+            else if (quote == '"')
+            {
+                if (c == '"') quote = default;
+                else if (c == '\\' && i + 1 < args.Length && (args[i + 1] == '"' || args[i + 1] == '\\'))
+                {
+                    current.Append(args[++i]);
+                }
+                else current.Append(c);
+            }
+            else if (c == '\\' && i + 1 < args.Length)
+            {
+                // Outside quotes, bash treats \<any char> as a literal char
+                // (this is how QuoteShell encodes embedded apostrophes).
+                current.Append(args[++i]);
+            }
+            else if (c == '\'' || c == '"')
+            {
+                quote = c;
+            }
+            else if (char.IsWhiteSpace(c))
+            {
+                Flush();
+            }
+            else
+            {
+                current.Append(c);
+            }
+        }
+        Flush();
+        return tokens;
+    }
 
     public static void EnsureExecutable(params string[] files)
     {
