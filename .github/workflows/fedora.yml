@@ -54,7 +54,7 @@ jobs:
       - name: Install toolchain
         run: |
           set -e
-          dnf -y install git nodejs curl
+          dnf -y install git nodejs curl libicu
           # Fedora's dnf dotnet-sdk package ships without the WindowsDesktop SDK
           # targets needed for net8.0-windows cross-builds; use the official SDK.
           curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
@@ -62,6 +62,7 @@ jobs:
           /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet
           echo "DOTNET_ROOT=/usr/share/dotnet" >> "$GITHUB_ENV"
           echo "/usr/share/dotnet" >> "$GITHUB_PATH"
+          echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> "$GITHUB_ENV"
           /usr/share/dotnet/dotnet --info
 
       - name: Check out source
