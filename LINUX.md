@@ -13,6 +13,39 @@
 
 ---
 
+## Install
+
+### Option A — RPM (Fedora / any RPM distro)
+
+```bash
+# one-time: add the dnf repo
+sudo curl -o /etc/yum.repos.d/splitwire-turkey.repo \
+  http://rasitozgun.dev/SplitWire-Turkey/splitwire-turkey.repo
+
+# install & update with your normal package manager
+sudo dnf install splitwire-turkey
+```
+
+Or install the RPM directly from the release:
+
+```bash
+sudo dnf install https://github.com/rasitozgun/SplitWire-Turkey/releases/download/linux/splitwire-turkey-1.5.6-1.fc44.x86_64.rpm
+```
+
+### Option B — portable tarball (any distro)
+
+```bash
+curl -LO https://github.com/rasitozgun/SplitWire-Turkey/releases/download/linux/SplitWire-Turkey-Linux-x64.tar.gz
+tar -xzf SplitWire-Turkey-Linux-x64.tar.gz
+cd splitwire-turkey-linux-x64
+sudo ./install.sh        # → /opt/splitwire-turkey + applications-menu launcher
+```
+
+Updates: the app itself checks the fork's `linux` release on startup and offers
+a download link when a newer build is published (title carries the version).
+
+---
+
 ## What works on Linux today
 
 | Windows feature | Linux port status |

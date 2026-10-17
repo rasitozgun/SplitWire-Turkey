@@ -11,6 +11,8 @@ Requires:       wireguard-tools
 # The app is self-contained (.NET 8 runtime bundled): the dependency scanner
 # would generate nonsense deps from the bundled shared libraries, so disable it.
 AutoReqProv:    no
+# Self-contained prebuilt app: no debuginfo/debugsource packages possible.
+%define debug_package %{nil}
 
 %description
 SplitWire-Turkey (Linux edition) is an Avalonia 11 / .NET 8 GUI that automates
@@ -35,5 +37,5 @@ chmod +x %{buildroot}/opt/%{name}/install.sh 2>/dev/null || true
 %{_datadir}/applications/%{name}.desktop
 
 %changelog
-* Fri Oct 17 2026 rasitozgun
-- 1.5.6-1: First RPM build of the Linux edition (WARP, ByeDPI, Zapret).
+* Fri Oct 17 2026 rasitozgun <rasitozgun@users.noreply.github.com> - 1.5.6-1
+- First RPM build of the Linux edition (WARP, ByeDPI, Zapret).
