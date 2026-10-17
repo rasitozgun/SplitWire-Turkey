@@ -1,6 +1,6 @@
 [splitwire-turkey]
 name=SplitWire-Turkey (rasitozgun fork)
-baseurl=https://rasitozgun.github.io/SplitWire-Turkey/rpm/
+baseurl=https://raw.githubusercontent.com/rasitozgun/SplitWire-Turkey/gh-pages/rpm/
 enabled=1
 gpgcheck=0
-repo_gpgcheck=0n
+repo_gpgcheck=0
