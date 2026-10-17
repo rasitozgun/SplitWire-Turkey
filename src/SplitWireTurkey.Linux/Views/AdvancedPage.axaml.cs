@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -22,7 +22,7 @@ public partial class AdvancedPage : UserControl, PagesLocalized
         RefreshServices();
     }
 
-    private void RefreshServices()
+    private async void RefreshServices()
     {
         try
         {
@@ -33,11 +33,16 @@ public partial class AdvancedPage : UserControl, PagesLocalized
                 ZapretService.UnitName,
             };
 
-            var lines = units
-                .Select(async u => (Unit: u, Installed: await _systemd.IsInstalledAsync(u)))
-                .Select(t => t.GetAwaiter().GetResult())
-                .Select(x => $"{x.Unit}: {(x.Installed ? "installed" : "not installed")}");
-            ServicesList.Text = string.Join(Environment.NewLine, lines);
+            // Must not block the UI thread with .GetResult() here: this runs inside
+            // InitializeComponent before the Avalonia dispatcher loop has started,
+            // which would deadlock the app at startup.
+            var results = new List<string>();
+            foreach (var u in units)
+            {
+                var installed = await _systemd.IsInstalledAsync(u).ConfigureAwait(true);
+                results.Add($"{u}: {(installed ? "installed" : "not installed")}");
+            }
+            ServicesList.Text = string.Join(Environment.NewLine, results);
         }
         catch (Exception ex)
         {

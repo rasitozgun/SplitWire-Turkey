@@ -148,13 +148,15 @@ public class ProcessRunner
         {
             try
             {
-                if (File.Exists(file))
-                {
-                    var psi = new ProcessStartInfo("chmod", $"+x {QuoteShell(file)}") { CreateNoWindow = true };
-                    using var p = Process.Start(psi);
-                    p?.WaitForExit(5000);
-                    if (p != null && !p.HasExited) { try { p.Kill(); } catch { } }
-                }
+                if (!File.Exists(file)) continue;
+                // NOTE: ProcessStartInfo does NOT spawn a shell, so the path must be
+                // passed unquoted via ArgumentList (quoting made chmod look for a
+                // path wrapped in literal quote characters -> silent fail).
+                var psi = new ProcessStartInfo("chmod") { CreateNoWindow = true };
+                psi.ArgumentList.Add("+x");
+                psi.ArgumentList.Add(file);
+                using var p = Process.Start(psi);
+                p?.WaitForExit(5000);
             }
             catch { /* best effort */ }
         }

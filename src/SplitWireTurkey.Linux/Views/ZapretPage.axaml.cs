@@ -24,6 +24,7 @@ public partial class ZapretPage : UserControl, PagesLocalized
         try
         {
             var presets = await _zapret.LoadPresetsAsync().ConfigureAwait(true);
+            _presetsCache = presets;
             PresetCombo.ItemsSource = presets.Select(p => p.name).ToList();
             if (presets.Length > 0)
             {
@@ -49,10 +50,19 @@ public partial class ZapretPage : UserControl, PagesLocalized
         }
     }
 
+    private ZapretService.LinuxPreset[]? _presetsCache;
+
     private ZapretService.LinuxPreset[] TryGetPresets()
     {
-        try { return _zapret.LoadPresetsAsync().GetAwaiter().GetResult(); }
-        catch { return Array.Empty<ZapretService.LinuxPreset>(); }
+        if (_presetsCache is not null) return _presetsCache;
+        try
+        {
+            // Sync-over-async on the UI thread deadlocks the Avalonia dispatcher;
+            // presets are cached by LoadPresetsAsync, so this should only run after that.
+            _presetsCache = _zapret.LoadPresetsFromDisk();
+        }
+        catch { _presetsCache = Array.Empty<ZapretService.LinuxPreset>(); }
+        return _presetsCache;
     }
 
     private async void OnInstallClicked(object? sender, RoutedEventArgs e) => await GuardAsync(async () =>

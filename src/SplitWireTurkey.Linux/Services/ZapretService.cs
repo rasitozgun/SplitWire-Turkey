@@ -22,7 +22,7 @@ public class ZapretService
     private readonly HttpClient _http;
 
     public const string UnitName = "splitwire-zapret.service";
-    public const string PresetsFileRelPath = "zapret/presets-linux.json";
+    public const string PresetsFileRelPath = "res/zapret/presets-linux.json";
 
     public ZapretService(ProcessRunner runner, HttpClient http)
     {
@@ -49,6 +49,18 @@ public class ZapretService
         var doc = await JsonSerializer.DeserializeAsync<LinuxPreset[]>(
             File.OpenRead(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }, ct).ConfigureAwait(false);
         return doc ?? Array.Empty<LinuxPreset>();
+    }
+
+    /// <summary>Synchronous presets read for UI event handlers (cache-friendly, no deadlock).</summary>
+    public LinuxPreset[] LoadPresetsFromDisk()
+    {
+        var path = Path.Combine(Paths.BaseDir, PresetsFileRelPath);
+        if (!File.Exists(path))
+        {
+            return Array.Empty<LinuxPreset>();
+        }
+        return JsonSerializer.Deserialize<LinuxPreset[]>(
+            File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
     }
 
     /// <summary>Downloads + extracts the official zapret binaries (tpws etc.).</summary>

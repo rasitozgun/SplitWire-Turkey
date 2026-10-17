@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using LogService = SplitWireTurkey.Linux.Services.LogService;
 
@@ -43,13 +44,31 @@ public static class LanguageManager
                 return false;
             }
 
-            var raw = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(File.ReadAllText(path));
-            if (raw is null)
+            // The Windows edition language files may contain nested objects AND
+            // arrays (e.g. about.error_reports_list), so parse permissively:
+            // strings pass through, arrays are joined, other scalars use their raw text.
+            using var doc = JsonDocument.Parse(File.ReadAllText(path));
+            var map = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var section in doc.RootElement.EnumerateObject())
             {
-                return false;
+                if (section.Value.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+                var inner = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var prop in section.Value.EnumerateObject())
+                {
+                    inner[prop.Name] = prop.Value.ValueKind switch
+                    {
+                        JsonValueKind.String => prop.Value.GetString() ?? string.Empty,
+                        JsonValueKind.Array => string.Join(Environment.NewLine,
+                            prop.Value.EnumerateArray().Select(i => i.ValueKind == JsonValueKind.String ? i.GetString() ?? string.Empty : i.GetRawText())),
+                        _ => prop.Value.GetRawText(),
+                    };
+                }
+                map[section.Name] = inner;
             }
-
-            _translations = new Dictionary<string, Dictionary<string, string>>(raw, StringComparer.OrdinalIgnoreCase);
+            _translations = map;
             _currentLanguage = code.ToLowerInvariant();
             return true;
         }
