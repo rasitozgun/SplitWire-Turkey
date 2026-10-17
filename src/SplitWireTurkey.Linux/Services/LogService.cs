@@ -18,6 +18,7 @@ public static class LogService
     }
 
     public static void Info(string component, string message) => Write("INFO", component, message);
+    public static void Warn(string component, string message) => Write("WARN", component, message);
     public static void Error(string component, string message) => Write("ERROR", component, message);
 
     /// <summary>Raised for every log line so the UI log pane can mirror it.</summary>

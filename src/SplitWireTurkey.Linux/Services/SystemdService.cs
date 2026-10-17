@@ -60,7 +60,7 @@ public class SystemdService
         return result.ExitCode != 4; // 4 = no such unit
     }
 
-    public static string BuildSimpleUnit(string description, string execStart)
+    public static string BuildSimpleUnit(string description, string execStart, bool oneshot = false)
     {
         var sb = new StringBuilder();
         sb.AppendLine("[Unit]");
@@ -69,10 +69,24 @@ public class SystemdService
         sb.AppendLine("Wants=network-online.target");
         sb.AppendLine();
         sb.AppendLine("[Service]");
-        sb.AppendLine("Type=simple");
+        if (oneshot)
+        {
+            // wg-quick style one-shot setup: the command configures the
+            // interface and exits; the interface must stay up afterwards.
+            sb.AppendLine("Type=oneshot");
+            sb.AppendLine("RemainAfterExit=yes");
+            sb.AppendLine("ExecStop=" + execStart.Replace(" up ", " down "));
+        }
+        else
+        {
+            sb.AppendLine("Type=simple");
+        }
         sb.AppendLine($"ExecStart={execStart}");
-        sb.AppendLine("Restart=on-failure");
-        sb.AppendLine("RestartSec=5");
+        if (!oneshot)
+        {
+            sb.AppendLine("Restart=on-failure");
+            sb.AppendLine("RestartSec=5");
+        }
         sb.AppendLine();
         sb.AppendLine("[Install]");
         sb.AppendLine("WantedBy=multi-user.target");

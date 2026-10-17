@@ -60,7 +60,11 @@ public class WgcfService
         await EnsureWgcfAsync(ct).ConfigureAwait(false);
         var workDir = Path.GetDirectoryName(WgcfPath)!;
         var reg = await _runner.RunAsync(WgcfPath, "register --accept-tos", ct, workDir).ConfigureAwait(false);
-        if (!reg.Success && !reg.StdOut.Contains("already registered", StringComparison.OrdinalIgnoreCase))
+        // wgcf wording on an existing account: "existing account detected, refusing to overwrite"
+        var alreadyRegistered = reg.StdOut.Contains("already registered", StringComparison.OrdinalIgnoreCase)
+                             || reg.StdOut.Contains("existing account", StringComparison.OrdinalIgnoreCase)
+                             || reg.StdErr.Contains("existing account", StringComparison.OrdinalIgnoreCase);
+        if (!reg.Success && !alreadyRegistered)
         {
             throw new InvalidOperationException($"wgcf register failed: {reg.StdErr}{reg.StdOut}");
         }
@@ -91,7 +95,8 @@ public class WgcfService
         var systemd = new SystemdService(_runner);
         var unitContent = SystemdService.BuildSimpleUnit(
             "SplitWire-Turkey WireGuard (Cloudflare WARP) tunnel",
-            "/usr/bin/wg-quick up warp");
+            "/usr/bin/wg-quick up warp",
+            oneshot: true);
 
         await systemd.InstallUnitAsync(UnitName, unitContent, ct).ConfigureAwait(false);
         await systemd.EnableNowAsync(UnitName, ct).ConfigureAwait(false);
