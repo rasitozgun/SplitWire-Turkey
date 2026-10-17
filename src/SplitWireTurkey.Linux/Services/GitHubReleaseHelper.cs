@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -100,11 +103,17 @@ public static class GitHubReleaseHelper
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(CacheFile)!);
-            var root = File.Exists(CacheFile)
-                ? JsonDocument.Parse(File.ReadAllText(CacheFile)).RootElement.Clone()
-                : JsonNode.Parse("{}");
-            (root as JsonObject)![repo] = url;
-            File.WriteAllText(CacheFile, root!.ToString());
+            JsonObject root;
+            if (File.Exists(CacheFile))
+            {
+                root = JsonNode.Parse(File.ReadAllText(CacheFile))!.AsObject();
+            }
+            else
+            {
+                root = new JsonObject();
+            }
+            root[repo] = url;
+            File.WriteAllText(CacheFile, root.ToString());
         }
         catch { }
     }
