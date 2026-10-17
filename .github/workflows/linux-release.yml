@@ -60,8 +60,6 @@ jobs:
               SplitWire-Turkey-Linux-x64.tar.gz#SplitWire-Turkey-Linux-x64.tar.gz
           else
             # Manual run: attach to a rolling 'Linux' prerelease tag
-            git config user.name  "github-actions[bot]"
-            git config user.email "actions@github.com"
             gh release create linux \
               -R "$GITHUB_REPOSITORY" \
               --title "SplitWire-Turkey Linux (latest build)" \
