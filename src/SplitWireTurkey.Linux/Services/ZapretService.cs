@@ -73,7 +73,7 @@ public class ZapretService
 
         const string repo = "bol-van/zapret";
         var asset = await GitHubReleaseHelper
-            .GetLatestAssetUrlAsync(_http, repo, "linux.*(x86_64|amd64).*(\\.tar\\.gz|\\.tgz)$", ct)
+            .GetLatestAssetUrlAsync(_http, repo, "zapret.*\\.tar\\.gz", ct)
             .ConfigureAwait(false);
 
         var tgzPath = Path.Combine(Path.GetTempPath(), "zapret-bin.tgz");

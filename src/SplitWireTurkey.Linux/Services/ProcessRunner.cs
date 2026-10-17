@@ -22,18 +22,18 @@ public class ProcessRunner
 
     public event EventHandler<string>? OutputReceived;
 
-    public async Task<CommandResult> RunAsync(string program, string arguments, CancellationToken ct = default)
+    public async Task<CommandResult> RunAsync(string program, string arguments, CancellationToken ct = default, string? workingDirectory = null)
     {
-        return await RunCoreAsync(program, arguments, elevated: false, ct).ConfigureAwait(false);
+        return await RunCoreAsync(program, arguments, elevated: false, ct, workingDirectory).ConfigureAwait(false);
     }
 
     /// <summary>Runs a command with root privileges (pkexec first, sudo fallback).</summary>
-    public async Task<CommandResult> RunRootAsync(string program, string arguments, CancellationToken ct = default)
+    public async Task<CommandResult> RunRootAsync(string program, string arguments, CancellationToken ct = default, string? workingDirectory = null)
     {
-        return await RunCoreAsync(program, arguments, elevated: true, ct).ConfigureAwait(false);
+        return await RunCoreAsync(program, arguments, elevated: true, ct, workingDirectory).ConfigureAwait(false);
     }
 
-    private async Task<CommandResult> RunCoreAsync(string program, string arguments, bool elevated, CancellationToken ct)
+    private async Task<CommandResult> RunCoreAsync(string program, string arguments, bool elevated, CancellationToken ct, string? workingDirectory = null)
     {
         var (exe, args) = elevated ? ResolveElevation(program, arguments) : (program, arguments);
 
@@ -42,6 +42,7 @@ public class ProcessRunner
         {
             FileName = exe,
             Arguments = args,
+            WorkingDirectory = string.IsNullOrEmpty(workingDirectory) ? "." : workingDirectory,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,

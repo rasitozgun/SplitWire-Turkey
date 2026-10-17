@@ -49,7 +49,8 @@ public class ByeDpiService
         //    and extract the ciadpi binary into WorkingDir.
         const string repo = "hufrea/byedpi";
         var asset = await GitHubReleaseHelper
-            .GetLatestAssetUrlAsync(_http, repo, "linux.*(x86_64|amd64).*(\\.tar|\\.zip)", ct)
+            // byedpi asset naming: byedpi-17.3-x86_64.tar.gz (linux), x86_64-w64.zip = windows
+            .GetLatestAssetUrlAsync(_http, repo, "x86_64\\.tar\\.gz", ct)
             .ConfigureAwait(false);
 
         var archiveExt = asset.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? ".zip" : ".tar.gz";

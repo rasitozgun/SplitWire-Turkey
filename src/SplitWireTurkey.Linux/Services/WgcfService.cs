@@ -52,17 +52,20 @@ public class WgcfService
         ProcessRunner.EnsureExecutable(WgcfPath);
     }
 
-    /// <summary>Registers a WARP account (/ wgcf register) and generates the profile.</summary>
+    /// <summary>Registers a WARP account (/ wgcf register) and generates the profile.
+    /// wgcf keeps its account database (wgcf-account.toml) in the CWD, so both
+    /// invocations are scoped to the res/ directory.</summary>
     public async Task RegisterAsync(CancellationToken ct = default)
     {
         await EnsureWgcfAsync(ct).ConfigureAwait(false);
-        var reg = await _runner.RunAsync(WgcfPath, "register --accept-tos", ct).ConfigureAwait(false);
+        var workDir = Path.GetDirectoryName(WgcfPath)!;
+        var reg = await _runner.RunAsync(WgcfPath, "register --accept-tos", ct, workDir).ConfigureAwait(false);
         if (!reg.Success && !reg.StdOut.Contains("already registered", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException($"wgcf register failed: {reg.StdErr}{reg.StdOut}");
         }
 
-        var gen = await _runner.RunAsync(WgcfPath, $"generate -p {ProcessRunner.QuoteShell(ProfilePath)}", ct).ConfigureAwait(false);
+        var gen = await _runner.RunAsync(WgcfPath, $"generate -p {ProcessRunner.QuoteShell(ProfilePath)}", ct, workDir).ConfigureAwait(false);
         if (!gen.Success)
         {
             throw new InvalidOperationException($"wgcf generate failed: {gen.StdErr}");
