@@ -1,9 +1,15 @@
 # SplitWire-Turkey — Linux Edition
 
-> **Status: early scaffold (PR-ready but not feature-complete).**
+> **Status: tested and working on Fedora 44 (x86_64, Hyper-V VM, GNOME/Wayland).**
 > The Windows edition stays untouched. This document explains what the Linux port
 > contains (milestone 2) and how the existing Windows app can now be compiled on
 > Fedora for CI purposes (milestone 1).
+>
+> Tested end-to-end (commits up to `749e2b7`): GUI launches on both X11 and
+> XWayland, Cloudflare WARP tunnel via `wgcf`/`wg-quick` (verified with
+> `curl https://www.cloudflare.com/cdn-cgi/trace` → `warp=on`), ByeDPI (`ciadpi`)
+> and Zapret (`tpws`) downloads + systemd service installs, and the self-contained
+> release tarball at <https://github.com/rasitozgun/SplitWire-Turkey/releases/tag/linux>.
 
 ---
 
