@@ -1,0 +1,66 @@
+name: Fedora Linux Build
+
+# Milestone 1: the existing Windows WPF app compile-checks on Fedora.
+# Milestone 2: the Avalonia Linux edition builds and publishes on Fedora.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-linux-edition:
+    name: Build SplitWire-Turkey Linux edition (Fedora)
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - name: Install toolchain (dotnet SDK 8 + node for actions/checkout)
+        run: |
+          set -e
+          dnf -y install dotnet-sdk-8.0 git nodejs tar gzip
+          dotnet --info
+
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Restore and build
+        run: dotnet build src/SplitWireTurkey.Linux -c Release
+
+      - name: Publish linux-x64 (self-contained)
+        run: dotnet publish src/SplitWireTurkey.Linux -c Release -r linux-x64 --self-contained true -o publish/linux-x64
+
+      - name: Stage linux resources
+        run: |
+          set -e
+          mkdir -p publish/linux-x64/res/Languages
+          cp -r src/SplitWireTurkey/Resources/Languages/*.json publish/linux-x64/res/Languages/ || true
+          cp -r src/SplitWireTurkey.Linux/res/* publish/linux-x64/res/ 2>/dev/null || true
+          ls -la publish/linux-x64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SplitWire-Turkey-Linux-x64
+          path: publish/linux-x64/
+
+  compile-check-wpf-on-fedora:
+    name: Compile-check Windows WPF app on Fedora (cross-build)
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - name: Install toolchain
+        run: |
+          set -e
+          dnf -y install dotnet-sdk-8.0 git nodejs
+          dotnet --info
+
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      # WPF projects can be BUILT on Linux since .NET 7 when
+      # EnableWindowsTargeting=true is passed (they still only RUN on Windows).
+      - name: Cross-build net8.0-windows app
+        run: dotnet build src/SplitWireTurkey -c Release -p:EnableWindowsTargeting=true

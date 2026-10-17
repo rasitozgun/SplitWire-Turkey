@@ -1,0 +1,9 @@
+# Keep Linux-side scripts and sources LF so they work on Fedora CI and shells
+*.sh text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+# Markdown/C# can stay platform-native
+*.md text
+*.cs text
+*.csproj text
+*.axaml text

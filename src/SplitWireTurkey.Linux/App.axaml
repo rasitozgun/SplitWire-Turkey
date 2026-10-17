@@ -1,0 +1,24 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SplitWireTurkey.Linux.App"
+             RequestedThemeVariant="Dark">
+  <Application.Resources>
+    <!-- SplitWire-Turkey dark palette, adapted from the WPF edition -->
+    <SolidColorBrush x:Key="SwBackgroundColor">#FF0F1420</SolidColorBrush>
+    <SolidColorBrush x:Key="SwCardBackground">#FF161C2C</SolidColorBrush>
+    <SolidColorBrush x:Key="SwAccentColor">#FF6C5CE7</SolidColorBrush>
+    <SolidColorBrush x:Key="SwTextColor">#FFE6EAF2</SolidColorBrush>
+    <SolidColorBrush x:Key="SwSuccessColor">#FF00B894</SolidColorBrush>
+    <SolidColorBrush x:Key="SwErrorColor">#FFD63031</SolidColorBrush>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+    <Style Selector="Button">
+      <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="CornerRadius" Value="6" />
+    </Style>
+  </Application.Styles>
+</Application>

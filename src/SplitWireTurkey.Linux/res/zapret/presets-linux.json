@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Standart (Linux tpws)",
+    "tpws_args": "--port=443,80 --split-tls --disorder"
+  },
+  {
+    "name": "Turk Telekom",
+    "tpws_args": "--port=443 --split-tls=2 --seqovl=1 --disorder"
+  },
+  {
+    "name": "Superonline",
+    "tpws_args": "--port=443 --split-tls=2 --seqovl=1 --disorder"
+  },
+  {
+    "name": "Vodafone",
+    "tpws_args": "--port=443,80 --split-tls --fake-tls=empty --ipfw-preroute"
+  },
+  {
+    "name": "Turksat Kablonet",
+    "tpws_args": "--port=443 --split-tls --disorder"
+  },
+  {
+    "name": "Turkcell Mobil",
+    "tpws_args": "--port=443 --split-tls --disorder"
+  },
+  {
+    "name": "HTTP host-case (port 80)",
+    "tpws_args": "--port=80 --hostspell=hoSt"
+  }
+]

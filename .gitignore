@@ -1,0 +1,12 @@
+# .NET build outputs
+bin/
+obj/
+*.user
+*.suo
+
+# publish artifacts
+publish/
+
+# IDE
+.idea/
+.vscode/

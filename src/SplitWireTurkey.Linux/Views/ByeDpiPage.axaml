@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SplitWireTurkey.Linux.Views.ByeDpiPage">
+  <ScrollViewer>
+    <StackPanel Margin="8" Spacing="12" MaxWidth="760" HorizontalAlignment="Left">
+      <TextBlock x:Name="Header" FontSize="20" FontWeight="Bold" Text="ByeDPI (ciadpi) Local Proxy" />
+      <TextBlock x:Name="DescriptionText" TextWrapping="Wrap" Opacity="0.8"
+                 Text="Downloads the official Linux ciadpi build and runs it as a systemd service. Point your browser/Discord client at the localhost SOCKS5 proxy (default port 1080, configurable in the strategy arguments)." />
+      <TextBlock x:Name="ArgsLabel" FontWeight="Bold" Text="Strategy arguments:" />
+      <TextBox x:Name="ArgsBox" Height="70" AcceptsReturn="True" TextWrapping="Wrap"
+               Watermark="-p 1080 -d'blog.php?g=' -q/1 ..." />
+      <CheckBox x:Name="PersistBox" Content="Persist after reboot (systemd enable --now)" IsChecked="True" />
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Button x:Name="Install" Click="OnInstallClicked" Content="Install ByeDPI service" />
+        <Button x:Name="Remove" Click="OnRemoveClicked" Content="Remove ByeDPI" />
+      </StackPanel>
+      <TextBlock x:Name="Status" FontSize="13" Opacity="0.9" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

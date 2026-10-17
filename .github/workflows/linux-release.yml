@@ -1,0 +1,74 @@
+name: Linux Release (Fedora build)
+
+# Builds the self-contained Linux edition on Fedora, packages it as an
+# installable tar.gz and attaches it to a GitHub release on the fork.
+#
+# Triggers:
+#   - tag push (v*, e.g. linux-1.0.0)
+#   - manual run: creates/updates the "Linux" prerelease with the artifact
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Install toolchain
+        run: |
+          set -e
+          dnf -y install dotnet-sdk-8.0 git nodejs tar gzip gh
+          dotnet --info
+
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Publish linux-x64 (self-contained)
+        run: |
+          set -e
+          dotnet publish src/SplitWireTurkey.Linux -c Release -r linux-x64 --self-contained true -o publish/linux-x64
+          mkdir -p publish/linux-x64/res/Languages
+          cp src/SplitWireTurkey/Resources/Languages/*.json publish/linux-x64/res/Languages/ || true
+          cp -r src/SplitWireTurkey.Linux/res/* publish/linux-x64/res/ 2>/dev/null || true
+          ls -la publish/linux-x64
+
+      - name: Package installable tar.gz
+        run: |
+          chmod +x src/SplitWireTurkey.Linux/packaging/*.sh
+          src/SplitWireTurkey.Linux/packaging/package_linux.sh publish/linux-x64 SplitWire-Turkey-Linux-x64.tar.gz
+
+      - name: Create / update release with the artifact
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -e
+          if [[ "$TAG" == v* ]]; then
+            gh release create "$TAG" \
+              -R "$GITHUB_REPOSITORY" \
+              --title "SplitWire-Turkey Linux ($TAG)" \
+              --notes "Portable Linux edition (Fedora-built, self-contained linux-x64).
+          Extract, then:  sudo ./install.sh" \
+              SplitWire-Turkey-Linux-x64.tar.gz#SplitWire-Turkey-Linux-x64.tar.gz
+          else
+            # Manual run: attach to a rolling 'Linux' prerelease tag
+            git config user.name  "github-actions[bot]"
+            git config user.email "actions@github.com"
+            gh release create linux \
+              -R "$GITHUB_REPOSITORY" \
+              --title "SplitWire-Turkey Linux (latest build)" \
+              --notes "Automatically built portable Linux edition (self-contained linux-x64).
+          Extract, then:  sudo ./install.sh" \
+              --prerelease \
+              SplitWire-Turkey-Linux-x64.tar.gz#SplitWire-Turkey-Linux-x64.tar.gz \
+              || (gh release delete-asset linux SplitWire-Turkey-Linux-x64.tar.gz -R "$GITHUB_REPOSITORY" -y \
+                  && gh release upload linux SplitWire-Turkey-Linux-x64.tar.gz -R "$GITHUB_REPOSITORY")
+          fi

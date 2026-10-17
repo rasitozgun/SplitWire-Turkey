@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>SplitWire-Turkey-Linux</AssemblyName>
+    <RootNamespace>SplitWireTurkey.Linux</RootNamespace>
+    <AssemblyTitle>SplitWire-Turkey (Linux)</AssemblyTitle>
+    <AssemblyDescription>Various restriction bypass tools - Linux port</AssemblyDescription>
+    <AssemblyCompany>Çağrı Taşkın</AssemblyCompany>
+    <AssemblyProduct>SplitWire-Turkey</AssemblyProduct>
+    <AssemblyVersion>1.5.6</AssemblyVersion>
+    <FileVersion>1.5.6</FileVersion>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.22" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+
+  <!--
+    Zapret Linux presets ship with the app (the Windows ones are nfqws/winws-specific).
+  -->
+  <ItemGroup>
+    <Content Include="res\zapret\presets-linux.json" CopyToOutputDirectory="PreserveNewest" Link="res\zapret\presets-linux.json" />
+  </ItemGroup>
+
+  <!--
+    Reuse the language JSON files of the Windows edition instead of duplicating them.
+    They end up next to the Linux binary under res/Languages.
+  -->
+  <Target Name="CopyLanguageFiles" AfterTargets="Build" BeforeTargets="Publish">
+    <ItemGroup>
+      <SplitWireLanguageFiles Include="..\SplitWireTurkey\Resources\Languages\*.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SplitWireLanguageFiles)"
+          DestinationFolder="$(OutDir)res/Languages"
+          SkipUnchangedFiles="true"
+          Condition="'@(SplitWireLanguageFiles)' != ''" />
+  </Target>
+
+</Project>
