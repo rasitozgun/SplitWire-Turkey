@@ -24,6 +24,9 @@ public partial class MainWindow : Window
         LogService.LineAdded += OnLogLine;
         LogService.Info("App", $"SplitWire-Turkey Linux edition started. Config: {Paths.SettingsFile}");
         LogTextBox.Text = $"SplitWire-Turkey Linux edition\nLog file: {LogService.CurrentLogFile}\n\n";
+
+        // Fire-and-forget update check against the fork's GitHub release.
+        UpdateService.CheckAndNotify(this);
     }
 
     protected override void OnClosed(EventArgs e)

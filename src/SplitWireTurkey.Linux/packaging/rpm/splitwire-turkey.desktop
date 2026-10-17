@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=SplitWire-Turkey
+GenericName=DPI Bypass and Tunneling Automation
+Comment=Various restriction bypass tools (Linux edition)
+Exec=/opt/splitwire-turkey/SplitWire-Turkey-Linux
+Icon=utilities-terminal
+Terminal=false
+Categories=Network;
