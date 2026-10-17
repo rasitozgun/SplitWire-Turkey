@@ -1,6 +1,6 @@
 Name:           splitwire-turkey
 Version:        1.5.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Various restriction bypass tools - Linux edition (self-contained GUI)
 License:        MIT
 URL:            https://github.com/rasitozgun/SplitWire-Turkey
@@ -37,5 +37,7 @@ chmod +x %{buildroot}/opt/%{name}/install.sh 2>/dev/null || true
 %{_datadir}/applications/%{name}.desktop
 
 %changelog
+* Sat Oct 18 2026 rasitozgun <rasitozgun@users.noreply.github.com> - 1.5.6-2
+- Invariant globalization mode: fixes startup crash on distros with newer ICU (77+) (rh#CentOS/Fedora).
 * Fri Oct 17 2026 rasitozgun <rasitozgun@users.noreply.github.com> - 1.5.6-1
 - First RPM build of the Linux edition (WARP, ByeDPI, Zapret).

@@ -15,7 +15,10 @@
     <LangVersion>latest</LangVersion>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
-    <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Fedora ships ICU versions (77+) that crash the .NET 8 runtime during
+         time-zone/date formatting. Invariant mode skips ICU entirely; the app
+         only does simple in-app culture switching, which works without it. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
