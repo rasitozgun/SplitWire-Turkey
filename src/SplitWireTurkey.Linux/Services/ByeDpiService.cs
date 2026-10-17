@@ -81,7 +81,8 @@ public class ByeDpiService
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(BinaryPath)!);
-        foreach (var candidate in Directory.GetFiles(extractDir, "ciadpi", SearchOption.AllDirectories))
+        // The release names the binary with an arch suffix: ciadpi-x86_64
+        foreach (var candidate in Directory.GetFiles(extractDir, "ciadpi*", SearchOption.AllDirectories))
         {
             File.Move(candidate, BinaryPath, overwrite: true);
             break;

@@ -72,8 +72,10 @@ public class ZapretService
         }
 
         const string repo = "bol-van/zapret";
+        // The universal release tarball is named like zapret-v72.13.tar.gz; the
+        // openwrt-embedded and .zip artifacts are NOT the Linux desktop build.
         var asset = await GitHubReleaseHelper
-            .GetLatestAssetUrlAsync(_http, repo, "zapret.*\\.tar\\.gz", ct)
+            .GetLatestAssetUrlAsync(_http, repo, "zapret-v[0-9.]+\\.tar\\.gz", ct)
             .ConfigureAwait(false);
 
         var tgzPath = Path.Combine(Path.GetTempPath(), "zapret-bin.tgz");
